@@ -429,7 +429,7 @@ export var CartesianAxis = /*#__PURE__*/function (_Component) {
           return weeksSinceBase % 2 === 0;
 
         default:
-          return weeksSinceBase % 4 === 0;
+          return weeksSinceBase % 3 === 0;
       }
     }
   }, {

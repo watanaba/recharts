@@ -167,7 +167,7 @@ export class CartesianAxis extends Component<Props> {
       case 2:
         return weeksSinceBase % 2 === 0;
       default:
-        return weeksSinceBase % 4 === 0;
+        return weeksSinceBase % 3 === 0;
     }
   }
 
