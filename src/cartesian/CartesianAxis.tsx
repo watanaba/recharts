@@ -49,7 +49,7 @@ export interface CartesianAxisProps {
   /** The formatter function of tick */
   tickFormatter?: (value: any, index: number) => string;
   ticksGenerator?: (props?: CartesianAxisProps) => CartesianTickItem[];
-  interval?: number | 'preserveStart' | 'preserveEnd' | 'preserveStartEnd';
+  interval?: number | 'preserveStart' | 'preserveEnd' | 'preserveStartEnd' | 'time';
 }
 
 export type Props = Omit<PresentationAttributesAdaptChildEvent<any, SVGElement>, 'viewBox'> & CartesianAxisProps;
@@ -96,6 +96,10 @@ export class CartesianAxis extends Component<Props> {
       );
     }
 
+    if (interval === 'time') {
+      return CartesianAxis.getTimeTicks(ticks);
+    }
+
     if (interval === 'preserveStartEnd') {
       return CartesianAxis.getTicksStart(
         {
@@ -132,6 +136,91 @@ export class CartesianAxis extends Component<Props> {
 
   static getNumberIntervalTicks(ticks: CartesianTickItem[], interval: number) {
     return ticks.filter((entry, i) => i % (interval + 1) === 0);
+  }
+
+  static timeTickFormatter(value: number, month: boolean): string {
+    const shortMonthStr = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const t = new Date(value * 1000);
+    if (month) {
+      return `${shortMonthStr[t.getUTCMonth()]} '${t.getUTCFullYear() % 100}`;
+    }
+    return `${shortMonthStr[t.getUTCMonth()]} ${t.getUTCDate()}`;
+  }
+
+  static formatTimeTicks(ticks: CartesianTickItem[], month: boolean): CartesianTickItem[] {
+    const result = (ticks || []).slice();
+    for (let i = 0; i < ticks.length; i++) {
+      result[i].value = CartesianAxis.timeTickFormatter(Number(ticks[i].value), month);
+    }
+    return result.filter(entry => entry.isShow);
+  }
+
+  static getDate(tick: CartesianTickItem): Date {
+    return new Date(tick.value * 1000);
+  }
+
+  static shouldShowForWeek(value: number, interval: number): boolean {
+    if (interval === 1) return true;
+    const baseSunday = 3 * 24 * 60 * 60; // 1970年1月4日は日曜日（UNIXエポックからの4日目）
+    const weeksSinceBase = Math.floor((value - baseSunday) / (7 * 24 * 60 * 60));
+    switch (interval) {
+      case 2:
+        return weeksSinceBase % 2 === 0;
+      default:
+        return weeksSinceBase % 4 === 0;
+    }
+  }
+
+  static shouldShowForMonth(value: number, interval: number): boolean {
+    if (interval === 1) return true;
+    const date = new Date(value * 1000);
+    const month = date.getUTCMonth() + 1;
+    switch (interval) {
+      case 2:
+        return month % 2 === 1;
+      default:
+        return month % 4 === 1;
+    }
+  }
+
+  static getTimeTicks(ticks: CartesianTickItem[]) {
+    const result = (ticks || []).slice();
+    const len = ticks.length;
+    if (len < 2) {
+      return CartesianAxis.formatTimeTicks(result, false);
+    }
+    const start = CartesianAxis.getDate(ticks[0]); // Convert Unix timestamp to JavaScript Date object
+    const end = CartesianAxis.getDate(ticks[len - 1]);
+    const d = (end.getTime() - start.getTime()) / 1000 / (60 * 60 * 24);
+    if (d < 10) {
+      return CartesianAxis.formatTimeTicks(result, false);
+    }
+
+    // day
+    if (d < 120) {
+      let interval = 3;
+      if (d < 10) interval = 1;
+      else if (d < 60) interval = 2;
+      for (let i = 0; i < len; i++) {
+        if (CartesianAxis.getDate(result[i]).getUTCDay() === 0) {
+          result[i].isShow = CartesianAxis.shouldShowForWeek(result[i].value, interval);
+        } else {
+          result[i].isShow = false;
+        }
+      }
+      return CartesianAxis.formatTimeTicks(result, false);
+    }
+
+    // month
+    const interval = d < 400 ? 1 : 2;
+    for (let i = 0; i < len; i++) {
+      if (CartesianAxis.getDate(result[i]).getUTCDate() === 1) {
+        result[i].isShow = CartesianAxis.shouldShowForMonth(result[i].value, interval);
+      } else {
+        result[i].isShow = false;
+      }
+    }
+    return CartesianAxis.formatTimeTicks(result, true);
   }
 
   static getTicksStart(
