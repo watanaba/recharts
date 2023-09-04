@@ -179,7 +179,7 @@ export class CartesianAxis extends Component<Props> {
       case 2:
         return month % 2 === 1;
       default:
-        return month % 4 === 1;
+        return month % 3 === 1;
     }
   }
 
@@ -212,10 +212,12 @@ export class CartesianAxis extends Component<Props> {
     }
 
     // month
-    const interval = d < 400 ? 1 : 2;
+    let intervalMonth = 3;
+    if (d < 260) intervalMonth = 1;
+    else if (d < 400) intervalMonth = 2;
     for (let i = 0; i < len; i++) {
       if (CartesianAxis.getDate(result[i]).getUTCDate() === 1) {
-        result[i].isShow = CartesianAxis.shouldShowForMonth(result[i].value, interval);
+        result[i].isShow = CartesianAxis.shouldShowForMonth(result[i].value, intervalMonth);
       } else {
         result[i].isShow = false;
       }

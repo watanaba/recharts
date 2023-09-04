@@ -444,7 +444,7 @@ export var CartesianAxis = /*#__PURE__*/function (_Component) {
           return month % 2 === 1;
 
         default:
-          return month % 4 === 1;
+          return month % 3 === 1;
       }
     }
   }, {
@@ -468,12 +468,12 @@ export var CartesianAxis = /*#__PURE__*/function (_Component) {
 
 
       if (d < 120) {
-        var _interval = 3;
-        if (d < 10) _interval = 1;else if (d < 60) _interval = 2;
+        var interval = 3;
+        if (d < 10) interval = 1;else if (d < 60) interval = 2;
 
         for (var i = 0; i < len; i++) {
           if (CartesianAxis.getDate(result[i]).getUTCDay() === 0) {
-            result[i].isShow = CartesianAxis.shouldShowForWeek(result[i].value, _interval);
+            result[i].isShow = CartesianAxis.shouldShowForWeek(result[i].value, interval);
           } else {
             result[i].isShow = false;
           }
@@ -483,11 +483,12 @@ export var CartesianAxis = /*#__PURE__*/function (_Component) {
       } // month
 
 
-      var interval = d < 400 ? 1 : 2;
+      var intervalMonth = 3;
+      if (d < 260) intervalMonth = 1;else if (d < 400) intervalMonth = 2;
 
       for (var _i = 0; _i < len; _i++) {
         if (CartesianAxis.getDate(result[_i]).getUTCDate() === 1) {
-          result[_i].isShow = CartesianAxis.shouldShowForMonth(result[_i].value, interval);
+          result[_i].isShow = CartesianAxis.shouldShowForMonth(result[_i].value, intervalMonth);
         } else {
           result[_i].isShow = false;
         }
