@@ -460,12 +460,7 @@ export var CartesianAxis = /*#__PURE__*/function (_Component) {
       var start = CartesianAxis.getDate(ticks[0]); // Convert Unix timestamp to JavaScript Date object
 
       var end = CartesianAxis.getDate(ticks[len - 1]);
-      var d = (end.getTime() - start.getTime()) / 1000 / (60 * 60 * 24);
-
-      if (d < 10) {
-        return CartesianAxis.formatTimeTicks(result, false);
-      } // day
-
+      var d = (end.getTime() - start.getTime()) / 1000 / (60 * 60 * 24); // day
 
       if (d < 120) {
         var interval = 3;

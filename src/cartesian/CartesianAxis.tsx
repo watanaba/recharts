@@ -192,9 +192,6 @@ export class CartesianAxis extends Component<Props> {
     const start = CartesianAxis.getDate(ticks[0]); // Convert Unix timestamp to JavaScript Date object
     const end = CartesianAxis.getDate(ticks[len - 1]);
     const d = (end.getTime() - start.getTime()) / 1000 / (60 * 60 * 24);
-    if (d < 10) {
-      return CartesianAxis.formatTimeTicks(result, false);
-    }
 
     // day
     if (d < 120) {
