@@ -201,6 +201,8 @@ export class CartesianAxis extends Component<Props> {
       for (let i = 0; i < len; i++) {
         if (CartesianAxis.getDate(result[i]).getUTCDay() === 0) {
           result[i].isShow = CartesianAxis.shouldShowForWeek(result[i].value, interval);
+        } else if (d < 10) {
+          result[i].isShow = true;
         } else {
           result[i].isShow = false;
         }
